@@ -281,9 +281,6 @@ var render = function () {
 			ctx.drawImage(bgImage, 0, 0);
 		}
 
-		if (heroReady) {
-			ctx.drawImage(heroImage, hero.x, hero.y);
-		}
 		ctx.fillText("GAME OVER ",180,200);
 	}else{
 
