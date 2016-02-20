@@ -34,13 +34,36 @@ princessImage.onload = function () {
 };
 princessImage.src = "images/princess.png";
 
+// monster image
+var monsterReady = false;
+var monsterImage = new Image();
+monsterImage.onload = function () {
+	monsterReady = true;
+};
+monsterImage.src = "images/monster.png";
+
+// stone image
+var stoneReady = false;
+var stoneImage = new Image();
+stoneImage.onload = function () {
+	stoneReady = true;
+};
+stoneImage.src = "images/stone.png";
+
 // Game objects
 var hero = {
 	speed: 256 // movement in pixels per second
 };
 var princess = {};
+var miArray = new Array(10);
+var monster = {};
 var princessesCaught = 0;
-
+var piedras = 0;
+var muertes = 0;
+var monstruos = new Array(5);
+var nmons = 0;
+var primeravez = true;
+var aux = 0;
 // Handle keyboard controls
 var keysDown = {};
 
@@ -52,32 +75,175 @@ addEventListener("keyup", function (e) {
 	delete keysDown[e.keyCode];
 }, false);
 
+var comparar = function(elemento1, elemento2) {
+
+	if (
+		elemento1.x <= (elemento2.x + 60)
+		&& elemento2.x <= (elemento1.x + 60)
+		&& elemento1.y <= (elemento2.y + 60)
+		&& elemento2.y <= (elemento1.y + 60)
+	) {
+		return true;
+	} else {
+	return false;
+	}
+};
+
 // Reset the game when the player catches a princess
 var reset = function () {
 	hero.x = canvas.width / 2;
 	hero.y = canvas.height / 2;
 
+
 	// Throw the princess somewhere on the screen randomly
-	princess.x = 32 + (Math.random() * (canvas.width - 64));
-	princess.y = 32 + (Math.random() * (canvas.height - 64));
+	do {
+		princess.x = 32 + (Math.random() * (canvas.width - 88));
+		princess.y = 32 + (Math.random() * (canvas.height - 98));
+	}
+	while (comparar(hero, princess))
+
+	//Throw the monster somewhere on the screen randomly
+
+	nmons = parseInt(princessesCaught/20);
+	if(nmons>5){
+		nmons = 5;
+	}
+	for (i=0;i<nmons;i++){
+		var monster = {};
+		monstruos[i]= monster;
+		do {
+			monstruos[i].x = 32 + (Math.random() * (canvas.width - 88));
+			monstruos[i].y = 32 + (Math.random() * (canvas.height - 98));
+			var n  = i-1;
+			var comp = false;
+			while(n >= 0){
+				comp = comparar(monstruos[n],monstruos[i]);
+				if (comp) {
+					break;
+				}
+				--n;
+			}
+		}
+		while (
+			comparar(hero,monstruos[i])
+			|| comparar(monstruos[i],princess)
+			|| comp
+		)
+	}
+
+
+	//stone
+	piedras = parseInt(princessesCaught/10);
+	if(piedras>10){
+		piedras = 10;
+	}
+	for (i=0;i<piedras;i++){
+		var stone = {};
+		miArray[i]= stone;
+		do {
+			miArray[i].x = 32 + (Math.random() * (canvas.width - 88));
+			miArray[i].y = 32 + (Math.random() * (canvas.height - 98));
+			var numero  = i-1;
+			var comparacion = false;
+			var monsvspie = false;
+			for(z = 0; z < nmons; z++ ){
+				monsvspie = comparar (miArray[i],monstruos[z]);
+				if (monsvspie) {
+					break;
+				}
+			}
+			while(numero >= 0){
+				comparacion = comparar(miArray[numero],miArray[i]);
+				if (comparacion) {
+					break;
+				}
+				--numero;
+			}
+
+		}
+		while (
+			comparar(hero,miArray[i])
+			|| comparar(miArray[i],monster)
+			|| comparar(miArray[i],princess)
+			|| comparacion || monsvspie
+		)
+	}
 };
+
+var moverarriba = function (){
+	for(i=0;i<piedras;i++){
+		if(
+			!(hero.y >= miArray[i].y + 20
+			|| hero.y <= miArray[i].y -15
+			|| hero.x >= miArray[i].x + 20
+			|| hero.x <= miArray[i].x - 20)
+		){
+			return false;
+		}
+	}
+	return true;
+};
+
+var moverabajo = function (){
+	for(i=0;i<piedras;i++){
+		if(
+			!(hero.y <= miArray[i].y - 20
+			|| hero.y >= miArray[i].y +15
+			|| hero.x >= miArray[i].x + 20
+			|| hero.x <= miArray[i].x - 20)
+		){
+			return false;
+		}
+	}
+	return true;
+};
+
+var moverizquierda = function (){
+	for(i=0;i<piedras;i++){
+		if(
+			!(hero.y >= miArray[i].y + 20
+			|| hero.y <= miArray[i].y -20
+			|| hero.x >= miArray[i].x + 20
+			|| hero.x <= miArray[i].x - 15)
+		){
+			return false;
+		}
+	}
+	return true;
+};
+
+var moverderecha = function (){
+	for(i=0;i<piedras;i++){
+		if(
+			!(hero.y >= miArray[i].y + 20
+			|| hero.y <= miArray[i].y -20
+			|| hero.x >= miArray[i].x + 15
+			|| hero.x <= miArray[i].x - 20)
+		){
+			return false;
+		}
+	}
+	return true;
+};
+
 
 // Update game objects
 var update = function (modifier) {
-	if (38 in keysDown) { // Player holding up
+
+	if (38 in keysDown && hero.y>25 && moverarriba()){ // Player holding up
 		hero.y -= hero.speed * modifier;
 	}
-	if (40 in keysDown) { // Player holding down
+	if (40 in keysDown && hero.y<(canvas.height-65) && moverabajo()) { // Player holding down
 		hero.y += hero.speed * modifier;
 	}
-	if (37 in keysDown) { // Player holding left
+	if (37 in keysDown && hero.x>25 && moverizquierda()) { // Player holding left
 		hero.x -= hero.speed * modifier;
 	}
-	if (39 in keysDown) { // Player holding right
+	if (39 in keysDown && hero.x<(canvas.width-55) && moverderecha()) { // Player holding right
 		hero.x += hero.speed * modifier;
 	}
 
-	// Are they touching?
+	// Are the hero and the princess touching?
 	if (
 		hero.x <= (princess.x + 16)
 		&& princess.x <= (hero.x + 16)
@@ -87,28 +253,75 @@ var update = function (modifier) {
 		++princessesCaught;
 		reset();
 	}
+	for (var i = 0; i < nmons; i++){
+
+		if (
+			hero.x <= (monstruos[i].x + 16)
+			&& monstruos[i].x <= (hero.x + 16)
+			&& hero.y <= (monstruos[i].y + 16)
+			&& monstruos[i].y <= (hero.y + 32)
+		) {
+			++muertes;
+			reset();
+		}
+	}
+
 };
 
 // Draw everything
 var render = function () {
-	if (bgReady) {
-		ctx.drawImage(bgImage, 0, 0);
+	if(muertes >= 5){
+		if(primeravez == true){
+		 	aux = princessesCaught;
+			primeravez = false;
+		}
+		princessesCaught = aux;
+		muertes = 5;
+		if (bgReady) {
+			ctx.drawImage(bgImage, 0, 0);
+		}
+
+		if (heroReady) {
+			ctx.drawImage(heroImage, hero.x, hero.y);
+		}
+		ctx.fillText("GAME OVER ",180,200);
+	}else{
+
+		if (bgReady) {
+			ctx.drawImage(bgImage, 0, 0);
+		}
+
+		if (heroReady) {
+			ctx.drawImage(heroImage, hero.x, hero.y);
+		}
+
+		if (princessReady) {
+			ctx.drawImage(princessImage, princess.x, princess.y);
+		}
+
+		for (var i=0;i < nmons; i++){
+			if (monsterReady) {
+				ctx.drawImage(monsterImage, monstruos[i].x, monstruos[i].y);
+			}
+		}
+		for (var i = 0; i < piedras; i++) {
+			if (stoneReady) {
+				ctx.drawImage(stoneImage, miArray[i].x, miArray[i].y);
+			}
+		}
 	}
 
-	if (heroReady) {
-		ctx.drawImage(heroImage, hero.x, hero.y);
-	}
 
-	if (princessReady) {
-		ctx.drawImage(princessImage, princess.x, princess.y);
-	}
+
 
 	// Score
-	ctx.fillStyle = "rgb(250, 250, 250)";
+	ctx.fillStyle = "rgb(0, 0, 0)";
 	ctx.font = "24px Helvetica";
 	ctx.textAlign = "left";
 	ctx.textBaseline = "top";
 	ctx.fillText("Princesses caught: " + princessesCaught, 32, 32);
+	ctx.fillText("Deaths: " + muertes,60,60);
+
 };
 
 // The main game loop
@@ -118,7 +331,6 @@ var main = function () {
 
 	update(delta / 1000);
 	render();
-
 	then = now;
 };
 
