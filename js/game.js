@@ -104,12 +104,14 @@ var reset = function () {
 
 	//Throw the monster somewhere on the screen randomly
 
-	nmons = parseInt(princessesCaught/20);
+	nmons = parseInt(princessesCaught/10);
 	if(nmons>5){
 		nmons = 5;
 	}
 	for (i=0;i<nmons;i++){
-		var monster = {};
+		var monster = {
+			speed: 255
+		};
 		monstruos[i]= monster;
 		do {
 			monstruos[i].x = 32 + (Math.random() * (canvas.width - 88));
@@ -133,7 +135,7 @@ var reset = function () {
 
 
 	//stone
-	piedras = parseInt(princessesCaught/10);
+	piedras = parseInt(princessesCaught/5);
 	if(piedras>10){
 		piedras = 10;
 	}
@@ -170,13 +172,13 @@ var reset = function () {
 	}
 };
 
-var moverarriba = function (){
+var moverarriba = function (element){
 	for(i=0;i<piedras;i++){
 		if(
-			!(hero.y >= miArray[i].y + 20
-			|| hero.y <= miArray[i].y -15
-			|| hero.x >= miArray[i].x + 20
-			|| hero.x <= miArray[i].x - 20)
+			!(element.y >= miArray[i].y + 20
+			|| element.y <= miArray[i].y -15
+			|| element.x >= miArray[i].x + 20
+			|| element.x <= miArray[i].x - 20)
 		){
 			return false;
 		}
@@ -184,13 +186,13 @@ var moverarriba = function (){
 	return true;
 };
 
-var moverabajo = function (){
+var moverabajo = function (element){
 	for(i=0;i<piedras;i++){
 		if(
-			!(hero.y <= miArray[i].y - 20
-			|| hero.y >= miArray[i].y +15
-			|| hero.x >= miArray[i].x + 20
-			|| hero.x <= miArray[i].x - 20)
+			!(element.y <= miArray[i].y - 20
+			|| element.y >= miArray[i].y +15
+			|| element.x >= miArray[i].x + 20
+			|| element.x <= miArray[i].x - 20)
 		){
 			return false;
 		}
@@ -198,13 +200,13 @@ var moverabajo = function (){
 	return true;
 };
 
-var moverizquierda = function (){
+var moverizquierda = function (element){
 	for(i=0;i<piedras;i++){
 		if(
-			!(hero.y >= miArray[i].y + 20
-			|| hero.y <= miArray[i].y -20
-			|| hero.x >= miArray[i].x + 20
-			|| hero.x <= miArray[i].x - 15)
+			!(element.y >= miArray[i].y + 20
+			|| element.y <= miArray[i].y -20
+			|| element.x >= miArray[i].x + 20
+			|| element.x <= miArray[i].x - 15)
 		){
 			return false;
 		}
@@ -212,13 +214,13 @@ var moverizquierda = function (){
 	return true;
 };
 
-var moverderecha = function (){
+var moverderecha = function (element){
 	for(i=0;i<piedras;i++){
 		if(
-			!(hero.y >= miArray[i].y + 20
-			|| hero.y <= miArray[i].y -20
-			|| hero.x >= miArray[i].x + 15
-			|| hero.x <= miArray[i].x - 20)
+			!(element.y >= miArray[i].y + 20
+			|| element.y <= miArray[i].y -20
+			|| element.x >= miArray[i].x + 15
+			|| element.x <= miArray[i].x - 20)
 		){
 			return false;
 		}
@@ -230,17 +232,37 @@ var moverderecha = function (){
 // Update game objects
 var update = function (modifier) {
 
-	if (38 in keysDown && hero.y>25 && moverarriba()){ // Player holding up
+	if (38 in keysDown && hero.y>25 && moverarriba(hero)){ // Player holding up
 		hero.y -= hero.speed * modifier;
+			for(i=0;i<nmons;i++){
+				if(moverarriba(monstruos[i]) && monstruos[i].y>25){
+					monstruos[i].y -= 4 * Math.random();
+				}
+			}
 	}
-	if (40 in keysDown && hero.y<(canvas.height-65) && moverabajo()) { // Player holding down
+	if (40 in keysDown && hero.y<(canvas.height-65) && moverabajo(hero)) { // Player holding down
 		hero.y += hero.speed * modifier;
+		for(i=0;i<nmons;i++){
+			if(moverabajo(monstruos[i]) && monstruos[i].y<(canvas.height-65)){
+				monstruos[i].y += 4 * Math.random();
+			}
+		}
 	}
-	if (37 in keysDown && hero.x>25 && moverizquierda()) { // Player holding left
+	if (37 in keysDown && hero.x>25 && moverizquierda(hero)) { // Player holding left
 		hero.x -= hero.speed * modifier;
+		for(i=0;i<nmons;i++){
+			if(moverizquierda(monstruos[i]) && monstruos[i].x>25){
+				monstruos[i].x -= 4 * Math.random();
+			}
+		}
 	}
-	if (39 in keysDown && hero.x<(canvas.width-55) && moverderecha()) { // Player holding right
+	if (39 in keysDown && hero.x<(canvas.width-55) && moverderecha(hero)) { // Player holding right
 		hero.x += hero.speed * modifier;
+		for(i=0;i<nmons;i++){
+			if(moverderecha(monstruos[i]) && monstruos[i].x<(canvas.width-55)){
+				monstruos[i].x += 4 * Math.random();
+			}
+		}
 	}
 
 	// Are the hero and the princess touching?
