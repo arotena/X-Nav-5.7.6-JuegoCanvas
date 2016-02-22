@@ -108,9 +108,10 @@ var reset = function () {
 	if(nmons>5){
 		nmons = 5;
 	}
+	velocidad = nmons;
 	for (i=0;i<nmons;i++){
 		var monster = {
-			speed: 255
+			speed: velocidad
 		};
 		monstruos[i]= monster;
 		do {
@@ -154,12 +155,14 @@ var reset = function () {
 					break;
 				}
 			}
-			while(numero >= 0){
-				comparacion = comparar(miArray[numero],miArray[i]);
-				if (comparacion) {
-					break;
+			if(monsvspie == false){
+				while(numero >= 0){
+					comparacion = comparar(miArray[numero],miArray[i]);
+					if (comparacion) {
+						break;
+					}
+					--numero;
 				}
-				--numero;
 			}
 
 		}
@@ -235,32 +238,32 @@ var update = function (modifier) {
 	if (38 in keysDown && hero.y>25 && moverarriba(hero)){ // Player holding up
 		hero.y -= hero.speed * modifier;
 			for(i=0;i<nmons;i++){
-				if(moverarriba(monstruos[i]) && monstruos[i].y>25){
-					monstruos[i].y -= 4 * Math.random();
+				if(moverarriba(monstruos[i]) && monstruos[i].y>45){
+					monstruos[i].y -= monstruos[i].speed * Math.random();
 				}
 			}
 	}
 	if (40 in keysDown && hero.y<(canvas.height-65) && moverabajo(hero)) { // Player holding down
 		hero.y += hero.speed * modifier;
 		for(i=0;i<nmons;i++){
-			if(moverabajo(monstruos[i]) && monstruos[i].y<(canvas.height-65)){
-				monstruos[i].y += 4 * Math.random();
+			if(moverabajo(monstruos[i]) && monstruos[i].y<(canvas.height-85)){
+				monstruos[i].y += monstruos[i].speed * Math.random();
 			}
 		}
 	}
 	if (37 in keysDown && hero.x>25 && moverizquierda(hero)) { // Player holding left
 		hero.x -= hero.speed * modifier;
 		for(i=0;i<nmons;i++){
-			if(moverizquierda(monstruos[i]) && monstruos[i].x>25){
-				monstruos[i].x -= 4 * Math.random();
+			if(moverizquierda(monstruos[i]) && monstruos[i].x>45){
+				monstruos[i].x -= monstruos[i].speed * Math.random();
 			}
 		}
 	}
 	if (39 in keysDown && hero.x<(canvas.width-55) && moverderecha(hero)) { // Player holding right
 		hero.x += hero.speed * modifier;
 		for(i=0;i<nmons;i++){
-			if(moverderecha(monstruos[i]) && monstruos[i].x<(canvas.width-55)){
-				monstruos[i].x += 4 * Math.random();
+			if(moverderecha(monstruos[i]) && monstruos[i].x<(canvas.width-75)){
+				monstruos[i].x += monstruos[i].speed * Math.random();
 			}
 		}
 	}
