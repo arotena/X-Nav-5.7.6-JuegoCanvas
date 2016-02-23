@@ -168,7 +168,6 @@ var reset = function () {
 		}
 		while (
 			comparar(hero,miArray[i])
-			|| comparar(miArray[i],monster)
 			|| comparar(miArray[i],princess)
 			|| comparacion || monsvspie
 		)
